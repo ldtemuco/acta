@@ -9,6 +9,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using PdfiumViewer;
 using System;
 using System.Diagnostics;
 using System.Windows;
@@ -100,7 +101,7 @@ namespace ACTA.Views {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/ACTA;component/views/participantformwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/ACTA;V1.0.0.0;component/views/participantformwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Views\ParticipantFormWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
