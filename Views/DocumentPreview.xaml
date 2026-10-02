@@ -1,0 +1,168 @@
+﻿<UserControl x:Class="ACTA.Views.Controls.DocumentPreviewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:pdfium="clr-namespace:PdfiumViewer;assembly=PdfiumViewer"
+             PreviewMouseLeftButtonDown="DocumentPreview_PreviewMouseLeftButtonDown"
+             PreviewMouseLeftButtonUp="DocumentPreview_PreviewMouseLeftButtonUp"
+             PreviewMouseMove="DocumentPreview_PreviewMouseMove"
+             PreviewMouseWheel="DocumentPreviewControl_PreviewMouseWheel"
+             SizeChanged="DocumentPreviewControl_SizeChanged">
+    
+    
+
+    <Grid Background="#525659">
+
+        <!-- Visor PDF -->
+        <pdfium:PDFViewer x:Name="PdfViewer"
+                          FitWidth="False"
+                          Zoom="1.0"
+                          ZoomMin="0.25"
+                          ZoomMax="4.0">
+
+            <pdfium:PDFViewer.Template>
+                <ControlTemplate TargetType="{x:Type pdfium:PDFViewer}">
+                    <ScrollViewer x:Name="PART_Scroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <ItemsPresenter/>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </pdfium:PDFViewer.Template>
+
+        </pdfium:PDFViewer>
+
+        <!-- Barra inferior -->
+        <Border x:Name="ViewerToolbar"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Center"
+                Margin="0,0,0,18"
+                Padding="6"
+                Background="#E62B2B2B"
+                CornerRadius="8">
+
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10"
+                                  ShadowDepth="2"
+                                  Opacity="0.35"/>
+            </Border.Effect>
+
+            <StackPanel Orientation="Horizontal">
+               
+                <!-- Mover Hoja (Mano)-->
+                <ToggleButton x:Name="PanButton"
+                    Width="32"
+                    Height="32"
+                    Padding="0"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    ToolTip="Mover hoja"
+                    IsChecked="True"
+                    Click="PanButton_Click">
+                    <Viewbox Width="16" 
+                        Height="16"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" Margin="0,0,0,0">  
+                        <Canvas Width="640" Height="640">
+                            <Path Data="{StaticResource HandIcon}" Fill="{StaticResource ViewerIconBrush}"/>
+                        </Canvas>
+                    </Viewbox>
+                </ToggleButton>
+
+                <!-- Seleccionar Texto (Cursor)-->
+                <ToggleButton x:Name="SelectionButton"
+                    Width="32"
+                    Height="32"
+                    Padding="0"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    ToolTip="Mover hoja"                    
+                    Click="SelectionButton_Click">
+                    <Viewbox Width="16" 
+                        Height="16"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" Margin="0,0,0,0">
+                        <Canvas Width="640" Height="640">
+                            <Path Data="{StaticResource CursorIcon}" Fill="{StaticResource ViewerIconBrush}"/>
+                        </Canvas>
+                    </Viewbox>
+                </ToggleButton>
+              
+                <!-- Separador | -->
+                <Border Width="1"
+                        Height="20"
+                        Margin="6,0"
+                        Background="#707070"/>               
+
+                <!-- Zoom Out -->
+                <Button Width="32"
+                    Height="32"
+                    Padding="0"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    ToolTip="Alejar"
+                    Click="ZoomOutButton_Click">
+                    <Viewbox Width="16" 
+                         Height="16"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center" Margin="0,0,0,0">
+                        <Canvas Width="640" Height="640">
+                            <Path Data="{StaticResource ZoomOutIcon}" Fill="{StaticResource ViewerIconBrush}"/>
+                        </Canvas>
+                    </Viewbox>
+                </Button>
+
+                <!-- Texto Porcentaje de Zoom -->
+                <TextBlock x:Name="ZoomText"
+                           Width="58"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center"
+                           Foreground="White"
+                           Text="100 %"/>   
+           
+                <!-- Zoom In -->
+                <Button Width="32"
+                    Height="32"
+                    Padding="0"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    ToolTip="Acercar"
+                    Click="ZoomInButton_Click">   
+                    <Viewbox Width="16" 
+                     Height="16"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center" Margin="0,0,0,0">
+                        <Canvas Width="640" Height="640">
+                            <Path Data="{StaticResource ZoomInIcon}" Fill="{StaticResource ViewerIconBrush}"/>
+                        </Canvas>
+                    </Viewbox>
+                </Button>
+
+                <!-- Separador | -->
+                <Border Width="1"
+                    Height="20"
+                    Margin="6,0"
+                    Background="#707070"/>
+
+                <!-- Ajustar al ancho -->
+                <Button Width="32"
+                        Height="32"
+                        Padding="0"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        ToolTip="Ajustar al ancho"
+                        Click="FitWidthButton_Click">                    
+                        <Viewbox Width="16" 
+                                     Height="16"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center" Margin="0,0,0,0">
+                            <Canvas Width="640" Height="640">
+                            <Path Data="{StaticResource FitWidthIcon}" Fill="{StaticResource ViewerIconBrush}"/>
+                            </Canvas>
+                        </Viewbox>
+                </Button>              
+
+            </StackPanel>
+
+        </Border>
+
+    </Grid>
+
+</UserControl>

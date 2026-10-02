@@ -1,0 +1,243 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="DatePickerIconResizingStyle"
+           TargetType="{x:Type DatePicker}">
+
+        <!-- Propiedades generales -->
+        <Setter Property="Foreground"
+                Value="#FF333333"/>
+
+        <Setter Property="FontSize"
+                Value="14"/>
+
+        <Setter Property="IsTodayHighlighted"
+                Value="True"/>
+
+        <Setter Property="SelectedDateFormat"
+                Value="Short"/>
+
+        <Setter Property="Background"
+                Value="Transparent"/>
+
+        <Setter Property="Padding"
+                Value="2"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+        <Setter Property="HorizontalContentAlignment"
+                Value="Stretch"/>
+
+        <Setter Property="VerticalContentAlignment"
+                Value="Stretch"/>
+
+        <!-- Borde -->
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint=".5,0"
+                                     StartPoint=".5,1">
+
+                    <GradientStop Color="#FFA3AEB9"
+                                  Offset="0"/>
+
+                    <GradientStop Color="#FF8399A9"
+                                  Offset="0.375"/>
+
+                    <GradientStop Color="#FF718597"
+                                  Offset="0.375"/>
+
+                    <GradientStop Color="#FF617584"
+                                  Offset="1"/>
+
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+
+        <!--
+            Estilo del calendario desplegable.
+
+            Cambia 1.20 por 1.25, 1.30, etc.
+            si quieres agrandarlo más.
+        -->
+        <Setter Property="CalendarStyle">
+            <Setter.Value>
+
+                <Style TargetType="{x:Type Calendar}">
+
+                    <Setter Property="LayoutTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="1.5"
+                                            ScaleY="1.5"/>
+                        </Setter.Value>
+                    </Setter>
+
+                </Style>
+
+            </Setter.Value>
+        </Setter>
+
+        <!-- Template principal -->
+        <Setter Property="Template">
+            <Setter.Value>
+
+                <ControlTemplate TargetType="{x:Type DatePicker}">
+
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        Padding="{TemplateBinding Padding}">
+
+                        <VisualStateManager.VisualStateGroups>
+
+                            <VisualStateGroup x:Name="CommonStates">
+
+                                <VisualState x:Name="Normal"/>
+
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+
+                                        <DoubleAnimation
+                                            Duration="0"
+                                            Storyboard.TargetName="PART_DisabledVisual"
+                                            Storyboard.TargetProperty="Opacity"
+                                            To="1"/>
+
+                                    </Storyboard>
+                                </VisualState>
+
+                            </VisualStateGroup>
+
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Grid
+                            x:Name="PART_Root"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+
+                            <!-- Recursos internos -->
+                            <Grid.Resources>
+
+                                <ControlTemplate
+                                    x:Key="DropDownButtonTemplate"
+                                    TargetType="{x:Type Button}">
+
+                                    <Border Background="Transparent">
+
+                                        <Viewbox
+                                            Width="20"
+                                            Height="20"
+                                            Stretch="Uniform"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+
+                                            <ContentControl
+                                                Content="{StaticResource CalendarIcon}"/>
+
+                                        </Viewbox>
+
+                                    </Border>
+
+                                </ControlTemplate>
+
+                            </Grid.Resources>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Campo de fecha -->
+                            <DatePickerTextBox
+                                x:Name="PART_TextBox"
+                                Grid.Column="0"
+                                Focusable="{TemplateBinding Focusable}"
+                                FontSize="{TemplateBinding FontSize}"
+                                Foreground="{TemplateBinding Foreground}"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Center"
+                                VerticalAlignment="Stretch"/>
+
+                            <!-- Botón calendario -->
+                            <Button
+                                x:Name="PART_Button"
+                                Grid.Column="1"
+                                Width="30"
+                                Padding="0"
+                                Margin="2,0"
+                                Focusable="False"
+                                Foreground="{TemplateBinding Foreground}"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Template="{StaticResource DropDownButtonTemplate}"/>
+
+                            <!-- Capa visual cuando está deshabilitado -->
+                            <Grid
+                                x:Name="PART_DisabledVisual"
+                                Grid.Column="0"
+                                Grid.ColumnSpan="2"
+                                IsHitTestVisible="False"
+                                Opacity="0">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Rectangle
+                                    Grid.Column="0"
+                                    Fill="#A5FFFFFF"
+                                    RadiusX="1"
+                                    RadiusY="1"/>
+
+                                <Rectangle
+                                    Grid.Column="1"
+                                    Fill="#A5FFFFFF"
+                                    Width="30"
+                                    Margin="2,0"
+                                    RadiusX="1"
+                                    RadiusY="1"/>
+
+                            </Grid>
+
+                            <!--
+                                DatePicker administra internamente
+                                el Calendar contenido en este Popup.
+                            -->
+                            <Popup
+                                x:Name="PART_Popup"
+                                AllowsTransparency="True"
+                                Placement="Bottom"
+                                PlacementTarget="{Binding ElementName=PART_TextBox}"
+                                StaysOpen="False"/>
+
+                        </Grid>
+
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+
+                        <DataTrigger
+                            Binding="{Binding Source={x:Static SystemParameters.HighContrast}}"
+                            Value="false">
+
+                            <Setter
+                                Property="Foreground"
+                                TargetName="PART_TextBox"
+                                Value="{Binding Foreground,
+                                    RelativeSource={RelativeSource TemplatedParent}}"/>
+
+                        </DataTrigger>
+
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+</ResourceDictionary>

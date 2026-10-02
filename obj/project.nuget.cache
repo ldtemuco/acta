@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "2HfS1tnT1Tk=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Bruno\\source\\repos\\ACTA\\ACTA\\ACTA.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Bruno\\.nuget\\packages\\bblanchon.pdfium.win32\\130.0.6721\\bblanchon.pdfium.win32.130.0.6721.nupkg.sha512",
+    "C:\\Users\\Bruno\\.nuget\\packages\\documentformat.openxml\\3.5.1\\documentformat.openxml.3.5.1.nupkg.sha512",
+    "C:\\Users\\Bruno\\.nuget\\packages\\documentformat.openxml.framework\\3.5.1\\documentformat.openxml.framework.3.5.1.nupkg.sha512",
+    "C:\\Users\\Bruno\\.nuget\\packages\\pdfiumviewer.net.wpf\\3.0.4\\pdfiumviewer.net.wpf.3.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}
