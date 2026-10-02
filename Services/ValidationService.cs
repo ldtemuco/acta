@@ -49,11 +49,9 @@ public static partial class ValidationService
     public static bool IsValidPhone(string? phone)
     {
         if (string.IsNullOrWhiteSpace(phone))
-            return true;
+            return false;
 
-        string cleanPhone = Regex.Replace(phone, @"[\s()+-]", "");
-
-        return Regex.IsMatch(cleanPhone, @"^\d{8,11}$");
+        return Regex.IsMatch(phone.Trim(), @"^\d{8}$");
     }
 
     public static bool TryParseTime(string? value, out TimeOnly time)

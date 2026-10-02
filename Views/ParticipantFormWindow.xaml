@@ -30,7 +30,8 @@
 
             <TextBox x:Name="NameTextBox"
                 Height="32"
-                VerticalContentAlignment="Center"/>
+                VerticalContentAlignment="Center"
+                TextChanged="Field_TextChanged"/>
 
         </StackPanel>
 
@@ -45,11 +46,12 @@
 
             <TextBox x:Name="RoleTextBox"
                 Height="32"
-                VerticalContentAlignment="Center"/>
+                VerticalContentAlignment="Center"
+                TextChanged="Field_TextChanged"/>
 
         </StackPanel>
 
-        <!-- RUN -->
+        <!-- RUT -->
         <StackPanel Grid.Row="2" Margin="0,0,0,14">
 
             <TextBlock 
@@ -60,7 +62,12 @@
 
             <TextBox x:Name="RunTextBox"
                 Height="32"
-                VerticalContentAlignment="Center" Width="128" HorizontalAlignment="Left"/>
+                VerticalContentAlignment="Center" 
+                Width="128" 
+                HorizontalAlignment="Left"
+                MaxLength="13"
+                PreviewTextInput="RunTextBox_PreviewTextInput"               
+                LostFocus="RunTextBox_LostFocus"/>
 
         </StackPanel>
 
@@ -101,7 +108,9 @@
                     Grid.Column="1"
                     Height="32"
                     FontSize="16"
-                    VerticalContentAlignment="Center" Margin="0,0,220,0"/>
+                    MaxLength="8"
+                    VerticalContentAlignment="Center" 
+                    Margin="0,0,220,0"/>
 
             </Grid>
         </StackPanel>
@@ -112,13 +121,15 @@
                     HorizontalAlignment="Right"
                     Margin="0,24,0,0">
 
-            <Button Content="Cancelar"
+            <Button x:Name="CancelButton"
+                    Content="Cancelar"
                     Width="90"
                     Height="32"
                     Margin="0,0,10,0"
                     IsCancel="True"/>
 
-            <Button Content="Agregar"
+            <Button x:Name="AddButton"                
+                    Content="Agregar"
                     Width="90"
                     Height="32"
                     IsDefault="True"
