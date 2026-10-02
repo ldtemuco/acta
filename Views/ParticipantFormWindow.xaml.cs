@@ -10,34 +10,46 @@ namespace ACTA.Views;
 
 public partial class ParticipantFormWindow : Window
 {
-    private static readonly Brush ValidBrush =
-        new SolidColorBrush(Color.FromRgb(46, 125, 50));
-
-    private static readonly Brush InvalidBrush =
-        new SolidColorBrush(Color.FromRgb(198, 40, 40));
-
-    private static readonly Brush DefaultBrush =
-        new SolidColorBrush(Color.FromRgb(171, 173, 179));
-
-    public Participant? Participant { get; private set; }
-
+    // Indica si se está ejecutando la lógica de formateo del RUN para evitar bucles infinitos.
     private bool _isFormattingRun;
 
+    // Color del borde de los TextBox cuando el valor es válido.
+    private static readonly Brush ValidBrush = new SolidColorBrush(Color.FromRgb(46, 125, 50));
+
+    // Color del borde de los TextBox cuando el valor es inválido.
+    private static readonly Brush InvalidBrush = new SolidColorBrush(Color.FromRgb(198, 40, 40));
+
+    public Participant? Participant
+    {
+        get;
+        private set;
+    }
     public ParticipantFormWindow()
     {
         InitializeComponent();
-
-        Loaded += (_, _) => NameTextBox.Focus();
-
-
         DataObject.AddPastingHandler(RunTextBox, RunTextBox_Pasting);
-
         DataObject.AddPastingHandler(PhoneTextBox, PhoneTextBox_Pasting);
-
         Loaded += (_, _) => NameTextBox.Focus();
     }
 
-    private static void PhoneTextBox_Pasting(object sender,DataObjectPastingEventArgs e)
+    //=================================================================================================================
+    // VALIDACIÓN DE TELÉFONO
+    //=================================================================================================================
+
+    private void PhoneTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        e.Handled = e.Text.Any(character => !char.IsDigit(character));
+    }
+
+    private void PhoneTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Space)
+        {
+            e.Handled = true;
+        }
+    }
+
+    private static void PhoneTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
     {
         if (!e.DataObject.GetDataPresent(DataFormats.Text))
         {
@@ -45,34 +57,17 @@ public partial class ParticipantFormWindow : Window
             return;
         }
 
-        string text =
-            e.DataObject.GetData(DataFormats.Text) as string
-            ?? string.Empty;
+        string text = e.DataObject.GetData(DataFormats.Text) as string ?? string.Empty;
 
         if (!text.All(char.IsDigit))
-            e.CancelCommand();
-    }
-
-    private static void RunTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
-    {
-        if (!e.DataObject.GetDataPresent(DataFormats.Text))
         {
             e.CancelCommand();
-            return;
         }
-
-        string text =
-            e.DataObject.GetData(DataFormats.Text) as string
-            ?? string.Empty;
-
-        bool valid = text.All(character =>
-            char.IsDigit(character) ||
-            character is 'K' or 'k' or '.' or '-'
-        );
-
-        if (!valid)
-            e.CancelCommand();
     }
+
+    //=================================================================================================================
+    // VALIDACIÓN DEL RUN
+    //=================================================================================================================
 
     private void RunTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
@@ -99,6 +94,24 @@ public partial class ParticipantFormWindow : Window
         ValidateFields();
     }
 
+    private static void RunTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (!e.DataObject.GetDataPresent(DataFormats.Text))
+        {
+            e.CancelCommand();
+            return;
+        }
+
+        string text = e.DataObject.GetData(DataFormats.Text) as string ?? string.Empty;
+
+        bool valid = text.All(character => char.IsDigit(character) || character is 'K' or 'k' or '.' or '-'
+        );
+
+        if (!valid)
+            e.CancelCommand();
+    }
+
+
     private void RunTextBox_LostFocus(object sender, RoutedEventArgs e)
     {
         ValidateFields();
@@ -106,29 +119,29 @@ public partial class ParticipantFormWindow : Window
 
     private static string FormatRun(string value)
     {
-        string cleanRun = new(
-            value
-                .ToUpperInvariant()
-                .Where(character =>
-                    char.IsDigit(character) ||
-                    character == 'K')
-                .ToArray()
-        );
+        string upperRun = value.ToUpperInvariant();
+
+        char[] validCharacters = upperRun.Where(character => char.IsDigit(character) || character == 'K').ToArray();
+
+        string cleanRun = new(validCharacters);
 
         if (cleanRun.Length == 0)
+        {
             return string.Empty;
-
+        }
         // K solo puede ser dígito verificador.
         int kIndex = cleanRun.IndexOf('K');
 
         if (kIndex >= 0 && kIndex != cleanRun.Length - 1)
+        {
             cleanRun = cleanRun.Replace("K", "");
-
+        }
         // Máximo:
         // 9 dígitos de cuerpo + 1 DV.
         if (cleanRun.Length > 10)
+        {
             cleanRun = cleanRun[..10];
-
+        }
         string number;
         string? verifier = null;
 
@@ -180,53 +193,26 @@ public partial class ParticipantFormWindow : Window
 
     private void ValidateFields()
     {
-        bool nameValid =
-            !string.IsNullOrWhiteSpace(NameTextBox.Text);
+        bool nameValid = !string.IsNullOrWhiteSpace(NameTextBox.Text);
 
-        bool roleValid =
-            !string.IsNullOrWhiteSpace(RoleTextBox.Text);
+        bool roleValid = !string.IsNullOrWhiteSpace(RoleTextBox.Text);
 
-        bool runValid =
-            ValidationService.IsValidRun(RunTextBox.Text);
+        bool runValid = ValidationService.IsValidRun(RunTextBox.Text);
 
-        bool phoneValid =
-            ValidationService.IsValidPhone(PhoneTextBox.Text);
+        bool phoneValid = ValidationService.IsValidPhone(PhoneTextBox.Text);
 
-        SetValidationState(
-            NameTextBox,
-            nameValid,
-            NameTextBox.Text
-        );
+        SetValidationState(NameTextBox, nameValid, NameTextBox.Text);
 
-        SetValidationState(
-            RoleTextBox,
-            roleValid,
-            RoleTextBox.Text
-        );
+        SetValidationState(RoleTextBox, roleValid, RoleTextBox.Text);
 
-        SetValidationState(
-            RunTextBox,
-            runValid,
-            RunTextBox.Text
-        );
+        SetValidationState(RunTextBox, runValid, RunTextBox.Text);
 
-        SetValidationState(
-            PhoneTextBox,
-            phoneValid,
-            PhoneTextBox.Text
-        );
+        SetValidationState(PhoneTextBox, phoneValid, PhoneTextBox.Text);
 
-        AddButton.IsEnabled =
-            nameValid &&
-            roleValid &&
-            runValid &&
-            phoneValid;
+        AddButton.IsEnabled = nameValid && roleValid && runValid && phoneValid;
     }
 
-    private static void SetValidationState(
-        TextBox textBox,
-        bool isValid,
-        string value)
+    private static void SetValidationState(TextBox textBox, bool isValid, string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -234,18 +220,15 @@ public partial class ParticipantFormWindow : Window
             return;
         }
 
-        textBox.BorderBrush =
-            isValid
-                ? ValidBrush
-                : InvalidBrush;
+        textBox.BorderBrush = isValid ? ValidBrush : InvalidBrush;
     }
 
-    private void AddButton_Click(
-        object sender,
-        RoutedEventArgs e)
+    private void AddButton_Click(object sender, RoutedEventArgs e)
     {
         if (!ValidateForm())
+        {
             return;
+        }
 
         Participant = new Participant
         {
@@ -256,11 +239,6 @@ public partial class ParticipantFormWindow : Window
         };
 
         DialogResult = true;
-    }
-
-    private void PhoneTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-    {
-        e.Handled = e.Text.Any(character => !char.IsDigit(character));
     }
 
     private bool ValidateForm()
