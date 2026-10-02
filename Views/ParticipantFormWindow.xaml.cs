@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Globalization;
 
 namespace ACTA.Views;
 
@@ -29,7 +30,75 @@ public partial class ParticipantFormWindow : Window
         InitializeComponent();
         DataObject.AddPastingHandler(RunTextBox, RunTextBox_Pasting);
         DataObject.AddPastingHandler(PhoneTextBox, PhoneTextBox_Pasting);
+        DataObject.AddPastingHandler(NameTextBox, TextField_Pasting);
+        DataObject.AddPastingHandler(RoleTextBox, TextField_Pasting);
         Loaded += (_, _) => NameTextBox.Focus();
+    }
+
+    //=================================================================================================================
+    // VALIDACIÓN DE NOMBRE Y ROL
+    //=================================================================================================================
+
+
+    private static bool IsValidTextCharacter(char character)
+    {
+        const string specialCharacters =
+            "áéíóúÁÉÍÓÚäëïöüÄËÏÖÜñÑ";
+
+        return
+            (character >= 'A' && character <= 'Z') ||
+            (character >= 'a' && character <= 'z') ||
+            character == ' ' ||
+            specialCharacters.Contains(character);
+    }
+
+    private void TextField_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        e.Handled = e.Text.Any(character => !IsValidTextCharacter(character));
+    }
+
+    private static void TextField_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (!e.DataObject.GetDataPresent(DataFormats.Text))
+        {
+            e.CancelCommand();
+            return;
+        }
+
+        object data = e.DataObject.GetData(DataFormats.Text);
+
+        if (data is not string text)
+        {
+            e.CancelCommand();
+            return;
+        }
+
+        bool isValid = text.All(IsValidTextCharacter);
+
+        if (!isValid)
+        {
+            e.CancelCommand();
+        }
+    }
+
+    private void TextField_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is not TextBox textBox)
+        { 
+            return;
+        }
+        textBox.Text = NormalizeText(textBox.Text);
+    }
+
+    private static string NormalizeText(string text)
+    {
+        string[] words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        string normalizedText = string.Join(" ", words);
+
+        TextInfo textInfo = CultureInfo.GetCultureInfo("es-CL").TextInfo;
+
+        return textInfo.ToTitleCase(normalizedText.ToLower());
     }
 
     //=================================================================================================================
@@ -232,14 +301,16 @@ public partial class ParticipantFormWindow : Window
 
         Participant = new Participant
         {
-            Name = NameTextBox.Text.Trim(),
-            Role = RoleTextBox.Text.Trim(),
+            Name = NormalizeText(NameTextBox.Text),
+            Role = NormalizeText(RoleTextBox.Text),
             Run = RunTextBox.Text.Trim(),
             Phone = PhoneTextBox.Text.Trim()
         };
 
         DialogResult = true;
     }
+
+
 
     private bool ValidateForm()
     {

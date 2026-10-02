@@ -34,7 +34,9 @@
                 MaxLength="32"     
                 BorderThickness="3"     
                 VerticalContentAlignment="Center"
-                TextChanged="Field_TextChanged"/>
+                PreviewTextInput="TextField_PreviewTextInput"
+                TextChanged="Field_TextChanged"
+                LostFocus="TextField_LostFocus"/>
 
         </StackPanel>
 
@@ -53,7 +55,9 @@
                 MaxLength="50"
                 BorderThickness="3"       
                 VerticalContentAlignment="Center"
-                TextChanged="Field_TextChanged"/>
+                PreviewTextInput="TextField_PreviewTextInput"
+                TextChanged="Field_TextChanged"
+                LostFocus="TextField_LostFocus"/>
 
         </StackPanel>
 
