@@ -51,7 +51,7 @@ public static partial class ValidationService
         if (string.IsNullOrWhiteSpace(phone))
             return false;
 
-        return Regex.IsMatch(phone.Trim(), @"^\d{8}$");
+        return Regex.IsMatch(phone, @"^\d{8}$");
     }
 
     public static bool TryParseTime(string? value, out TimeOnly time)

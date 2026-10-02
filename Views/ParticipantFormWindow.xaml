@@ -31,6 +31,7 @@
             <TextBox x:Name="NameTextBox"
                 Height="32"
                 FontSize="16"
+                MaxLength="32"     
                 BorderThickness="3"     
                 VerticalContentAlignment="Center"
                 TextChanged="Field_TextChanged"/>
@@ -49,6 +50,7 @@
             <TextBox x:Name="RoleTextBox"
                 Height="32"
                 FontSize="16"
+                MaxLength="50"
                 BorderThickness="3"       
                 VerticalContentAlignment="Center"
                 TextChanged="Field_TextChanged"/>

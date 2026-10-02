@@ -28,12 +28,53 @@ public partial class ParticipantFormWindow : Window
         InitializeComponent();
 
         Loaded += (_, _) => NameTextBox.Focus();
+
+
+        DataObject.AddPastingHandler(RunTextBox, RunTextBox_Pasting);
+
+        DataObject.AddPastingHandler(PhoneTextBox, PhoneTextBox_Pasting);
+
+        Loaded += (_, _) => NameTextBox.Focus();
     }
 
-    
-    private void RunTextBox_PreviewTextInput(
-    object sender,
-    TextCompositionEventArgs e)
+    private static void PhoneTextBox_Pasting(object sender,DataObjectPastingEventArgs e)
+    {
+        if (!e.DataObject.GetDataPresent(DataFormats.Text))
+        {
+            e.CancelCommand();
+            return;
+        }
+
+        string text =
+            e.DataObject.GetData(DataFormats.Text) as string
+            ?? string.Empty;
+
+        if (!text.All(char.IsDigit))
+            e.CancelCommand();
+    }
+
+    private static void RunTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (!e.DataObject.GetDataPresent(DataFormats.Text))
+        {
+            e.CancelCommand();
+            return;
+        }
+
+        string text =
+            e.DataObject.GetData(DataFormats.Text) as string
+            ?? string.Empty;
+
+        bool valid = text.All(character =>
+            char.IsDigit(character) ||
+            character is 'K' or 'k' or '.' or '-'
+        );
+
+        if (!valid)
+            e.CancelCommand();
+    }
+
+    private void RunTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         e.Handled = e.Text.Any(character =>
             !char.IsDigit(character) &&
@@ -41,9 +82,7 @@ public partial class ParticipantFormWindow : Window
         );
     }
 
-    private void RunTextBox_TextChanged(
-        object sender,
-        TextChangedEventArgs e)
+    private void RunTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         if (_isFormattingRun)
             return;
@@ -60,9 +99,7 @@ public partial class ParticipantFormWindow : Window
         ValidateFields();
     }
 
-    private void RunTextBox_LostFocus(
-        object sender,
-        RoutedEventArgs e)
+    private void RunTextBox_LostFocus(object sender, RoutedEventArgs e)
     {
         ValidateFields();
     }
@@ -219,6 +256,11 @@ public partial class ParticipantFormWindow : Window
         };
 
         DialogResult = true;
+    }
+
+    private void PhoneTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        e.Handled = e.Text.Any(character => !char.IsDigit(character));
     }
 
     private bool ValidateForm()
