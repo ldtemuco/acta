@@ -8,6 +8,8 @@ namespace ACTA.Views;
 
 public partial class ActFormView : UserControl
 {
+    private const int MaxParticipants = 10;
+
     public ObservableCollection<Participant> Participants { get; } = [];
     public ActFormView()
     {
@@ -35,6 +37,18 @@ public partial class ActFormView : UserControl
 
     private void AddParticipantButton_Click(object sender, RoutedEventArgs e)
     {
+        if (Participants.Count >= MaxParticipants)
+        {
+            MessageBox.Show(
+                $"El acta permite un máximo de {MaxParticipants} participantes.",
+                "Límite de participantes",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information
+            );
+
+            return;
+        }
+
         ParticipantFormWindow dialog = new()
         {
             Owner = Window.GetWindow(this)
@@ -49,13 +63,25 @@ public partial class ActFormView : UserControl
 
     private void RemoveParticipantButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.DataContext is Participant participant)
+        if (sender is Button button &&
+            button.DataContext is Participant participant)
         {
             Participants.Remove(participant);
+
+            UpdateParticipantControls();
         }
     }
 
-  
+    private void UpdateParticipantControls()
+    {
+        int count = Participants.Count;
+
+        ParticipantCountTextBlock.Text = $"({count}/{MaxParticipants})";
+
+        AddParticipantButton.IsEnabled = count < MaxParticipants;
+    }
+
+
     private static void ShowValidationError(string message, Control? control = null)
     {
         MessageBox.Show(message, "Datos incompletos", MessageBoxButton.OK, MessageBoxImage.Warning);
