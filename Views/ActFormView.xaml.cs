@@ -58,6 +58,7 @@ public partial class ActFormView : UserControl
             dialog.Participant is not null)
         {
             Participants.Add(dialog.Participant);
+            UpdateParticipantControls();
         }
     }
 
