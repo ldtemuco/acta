@@ -19,7 +19,7 @@
 
             <!-- Título -->
             <TextBlock Grid.Row="0"
-                       Text="Nueva acta"
+                       Text="Nueva Acta"
                        FontSize="24"
                        FontWeight="SemiBold"
                        Margin="0,0,0,24"/>
@@ -55,12 +55,12 @@
                      HorizontalContentAlignment="Left"
                      ToolTip="Formato HH:mm" HorizontalAlignment="Left"/>
                 </StackPanel>
-               
+
 
             </Grid>
 
 
-          
+
 
             <!-- Participantes -->
             <Grid Grid.Row="2"
@@ -78,18 +78,19 @@
                         FontSize="16"
                         FontWeight="SemiBold"
                         VerticalAlignment="Center"/>
-                    
+
                     <TextBlock x:Name="ParticipantCountTextBlock"
                        Text="0"        
                        Margin="100,0,0,0"
                        FontSize="16"
                        FontWeight="Bold"        
-                       VerticalAlignment="Center"/>                    
+                       VerticalAlignment="Center"/>
 
                     <Button x:Name="AddParticipantButton"
                             Content="+ Agregar"
                             Width="100"
                             Height="30"
+                            FontSize="16"
                             HorizontalAlignment="Right"
                             DockPanel.Dock="Right"
                             Click="AddParticipantButton_Click"/>
@@ -98,22 +99,26 @@
                 <!-- ItemsControl -->
                 <Border Grid.Row="1"
                     BorderBrush="#D0D0D0"
-                    BorderThickness="1"
+                    BorderThickness="3"
                     CornerRadius="4"
                     MinHeight="90"                      
                     Padding="12">
 
                     <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="84*"/>
+                            <ColumnDefinition Width="127*"/>
+                        </Grid.ColumnDefinitions>
 
                         <!-- Mensaje cuando la colección está vacía -->
                         <TextBlock Text="Todavía no hay participantes."
                             Foreground="#777777"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center">
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="134,0,0,0">
 
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding ElementName=ParticipantsItemsControl,Path=HasItems}" Value="False">
                                             <Setter Property="Visibility" Value="Visible"/>
@@ -125,7 +130,7 @@
                         </TextBlock>
 
                         <!-- Participantes -->
-                        <ItemsControl x:Name="ParticipantsItemsControl" ItemsSource="{Binding Participants, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="16"  >
+                        <ItemsControl x:Name="ParticipantsItemsControl" ItemsSource="{Binding Participants, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="16" Grid.ColumnSpan="2"  >
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,5">
@@ -182,9 +187,13 @@
                          MinHeight="90"
                          Padding="8"
                          AcceptsReturn="True"
+                         BorderThickness="3"
                          TextWrapping="Wrap"
                          MaxLength="750"
-                         VerticalScrollBarVisibility="Auto"/>
+                         VerticalScrollBarVisibility="Auto"
+                         PreviewTextInput="ActTextBox_PreviewTextInput"
+                         PreviewKeyDown="ActTextBox_PreviewKeyDown"
+                         TextChanged="ActTextBox_TextChanged"/>
 
             </StackPanel>
 
@@ -201,9 +210,13 @@
                          MinHeight="90"
                          Padding="8"
                          AcceptsReturn="True"
+                         BorderThickness="3"
                          TextWrapping="Wrap"
                          MaxLength="750"
-                         VerticalScrollBarVisibility="Auto"/>
+                         VerticalScrollBarVisibility="Auto"
+                         PreviewTextInput="ActTextBox_PreviewTextInput"
+                         PreviewKeyDown="ActTextBox_PreviewKeyDown"
+                         TextChanged="ActTextBox_TextChanged"/>
 
             </StackPanel>
 
@@ -219,9 +232,13 @@
                          MinHeight="90"
                          Padding="8"
                          AcceptsReturn="True"
+                         BorderThickness="3"
                          TextWrapping="Wrap"
                          MaxLength="750"
-                         VerticalScrollBarVisibility="Auto"/>
+                         VerticalScrollBarVisibility="Auto"
+                         PreviewTextInput="ActTextBox_PreviewTextInput"
+                         PreviewKeyDown="ActTextBox_PreviewKeyDown"
+                         TextChanged="ActTextBox_TextChanged"/>
 
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right"
@@ -229,11 +246,13 @@
 
                     <Button x:Name="PreviewButton"
                             Content="Vista previa"
+                            FontSize="16"
                             Width="110"
                             Height="34"
                             Margin="0,0,10,0"/>
 
                     <Button x:Name="SaveButton"
+                            FontSize="16"
                             Content="Guardar acta"
                             Width="110"
                             Height="34"/>

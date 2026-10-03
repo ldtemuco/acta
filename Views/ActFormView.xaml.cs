@@ -1,8 +1,10 @@
-﻿using ACTA.Services;
-using ACTA.Models;
+﻿using ACTA.Models;
+using ACTA.Services;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;       
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace ACTA.Views;
 
@@ -10,12 +12,22 @@ public partial class ActFormView : UserControl
 {
     private const int MaxParticipants = 10;
 
+    private static readonly Brush ValidBrush = new SolidColorBrush(Color.FromRgb(46, 125, 50));
+
+    private static readonly Brush InvalidBrush = new SolidColorBrush(Color.FromRgb(198, 40, 40));
+
     public ObservableCollection<Participant> Participants { get; } = [];
     public ActFormView()
     {
         InitializeComponent();
 
         MeetingDatePicker.SelectedDate = DateTime.Today;
+
+        DataObject.AddPastingHandler(MotivesTextBox, ActTextBox_Pasting);
+
+        DataObject.AddPastingHandler(AgreementsTextBox, ActTextBox_Pasting);
+
+        DataObject.AddPastingHandler(CommitmentsTextBox, ActTextBox_Pasting);
     }
 
     private bool TryGetMeetingDateTime(out DateTime dateTime)
@@ -112,6 +124,94 @@ public partial class ActFormView : UserControl
         MessageBox.Show(message, "Datos incompletos", MessageBoxButton.OK, MessageBoxImage.Warning);
         control?.Focus();
     }
+
+    private static bool IsValidActTextCharacter(char character)
+    {
+        const string specialCharacters = ".,¿?¡!ñÑáéíóúÁÉÍÓÚäëïöüÄËÏÖÜ-@";
+
+        return
+            (character >= 'A' && character <= 'Z') ||
+            (character >= 'a' && character <= 'z') ||
+            (character >= '0' && character <= '9') ||
+            character == ' ' ||
+            character == '\r' ||
+            character == '\n' ||
+            specialCharacters.Contains(character);
+    }
+
+    private void ActTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        e.Handled = e.Text.Any(character => !IsValidActTextCharacter(character));
+    }
+
+    private void ActTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (sender is not TextBox textBox)
+            return;
+
+        bool isValid =
+            !string.IsNullOrWhiteSpace(textBox.Text) &&
+            textBox.Text.Length <= 750 &&
+            textBox.Text.All(IsValidActTextCharacter);
+
+        if (string.IsNullOrWhiteSpace(textBox.Text))
+        {
+            textBox.ClearValue(BorderBrushProperty);
+            return;
+        }
+
+        textBox.BorderBrush = isValid ? ValidBrush : InvalidBrush;
+    }
+
+    private static void ActTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (sender is not TextBox textBox || !e.DataObject.GetDataPresent(DataFormats.Text))
+        {
+            e.CancelCommand();
+            return;
+        }
+
+        object data = e.DataObject.GetData(DataFormats.Text);
+
+        if (data is not string text)
+        {
+            e.CancelCommand();
+            return;
+        }
+
+        bool validCharacters = text.All(IsValidActTextCharacter);
+
+        bool validLength = textBox.Text.Length - textBox.SelectionLength + text.Length <= 750;
+
+        bool consecutiveSpaces = text.Contains("  ");
+
+        if (!validCharacters || !validLength || consecutiveSpaces)
+        {
+            e.CancelCommand();
+        }
+    }
+
+    private void ActTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (sender is not TextBox textBox ||
+            e.Key != Key.Space)
+        {
+            return;
+        }
+
+        int position = textBox.CaretIndex;
+
+        bool previousIsSpace = position > 0 && textBox.Text[position - 1] == ' ';
+
+        bool nextIsSpace = position < textBox.Text.Length && textBox.Text[position] == ' ';
+
+        if (position == 0 || previousIsSpace || nextIsSpace)
+        {
+            e.Handled = true;
+        }
+    }
+
+
     private bool ValidateForm()
     {
         if (MeetingDatePicker.SelectedDate is null)
@@ -171,7 +271,7 @@ public partial class ActFormView : UserControl
                 ShowValidationError($"El teléfono de {participant.Name} no es válido.");
                 return false;
             }
-        }
+        }       
 
         if (string.IsNullOrWhiteSpace(MotivesTextBox.Text))
         {
