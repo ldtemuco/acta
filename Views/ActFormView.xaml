@@ -4,7 +4,7 @@
              MinWidth="500">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled">
+                  HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}">
 
         <Grid Margin="24">
 

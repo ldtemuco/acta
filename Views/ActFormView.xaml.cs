@@ -12,6 +12,8 @@ public partial class ActFormView : UserControl
 {
     private const int MaxParticipants = 10;
 
+    private static readonly Brush ActBackground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
+
     private static readonly Brush ValidBrush = new SolidColorBrush(Color.FromRgb(46, 125, 50));
 
     private static readonly Brush InvalidBrush = new SolidColorBrush(Color.FromRgb(198, 40, 40));
