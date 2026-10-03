@@ -38,29 +38,51 @@
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Fecha" Margin="0,0,0,6" FontSize="16"/>
                     <DatePicker x:Name="MeetingDatePicker" 
+                                BorderThickness="3"
                                 Height="32" 
                                 FontSize="18"
                                 Style="{StaticResource DatePickerIconResizingStyle}"/>
                 </StackPanel>
 
-                <!-- Hora -->
+                <!-- Hora -->                
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="Hora (Formato 24H)" Margin="0,0,0,6" FontSize="16"/>
-                    <TextBox x:Name="MeetingTimeTextBox"
-                     Height="32"
-                     Width="70"
-                     MaxLength="5"
-                     FontSize="18"
-                     VerticalContentAlignment="Center"
-                     HorizontalContentAlignment="Left"
-                     ToolTip="Formato HH:mm" HorizontalAlignment="Left"/>
+                    <TextBlock Text="Hora (Formato 24H)"
+                        Margin="0,0,0,6"
+                        FontSize="16"/>
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Horas -->
+                        <TextBox x:Name="MeetingHourTextBox"
+                            Width="42"
+                            Height="32"
+                            MaxLength="2"
+                            FontSize="18"
+                            BorderThickness="3"     
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            PreviewTextInput="TimeTextBox_PreviewTextInput"
+                            TextChanged="MeetingHourTextBox_TextChanged"
+                            LostFocus="TimeTextBox_LostFocus"/>
+                        
+                        <TextBlock Text=":"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            VerticalAlignment="Top"
+                            LineHeight="1"
+                            Margin="6,0"/>
+                        <!-- Minutos -->
+                        <TextBox x:Name="MeetingMinuteTextBox"
+                            Width="42"
+                            Height="32"
+                            MaxLength="2"
+                            FontSize="18"
+                            BorderThickness="3"     
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            PreviewTextInput="TimeTextBox_PreviewTextInput"
+                            LostFocus="TimeTextBox_LostFocus"/>     
+                    </StackPanel>
                 </StackPanel>
-
-
             </Grid>
-
-
-
 
             <!-- Participantes -->
             <Grid Grid.Row="2"
@@ -90,10 +112,10 @@
                             Content="+ Agregar"
                             Width="100"
                             Height="30"
-                            FontSize="16"
-                            HorizontalAlignment="Right"
+                            FontSize="16"                            
+                            VerticalContentAlignment="Top"
                             DockPanel.Dock="Right"
-                            Click="AddParticipantButton_Click"/>
+                            Click="AddParticipantButton_Click" HorizontalAlignment="Right" FontWeight="Bold"/>
                 </DockPanel>
 
                 <!-- ItemsControl -->
@@ -247,12 +269,14 @@
                     <Button x:Name="PreviewButton"
                             Content="Vista previa"
                             FontSize="16"
+                            FontWeight="Bold"
                             Width="110"
                             Height="34"
                             Margin="0,0,10,0"/>
 
                     <Button x:Name="SaveButton"
                             FontSize="16"
+                            FontWeight="Bold"
                             Content="Guardar acta"
                             Width="110"
                             Height="34"/>

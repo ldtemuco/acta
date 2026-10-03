@@ -28,6 +28,10 @@ public partial class ActFormView : UserControl
         DataObject.AddPastingHandler(AgreementsTextBox, ActTextBox_Pasting);
 
         DataObject.AddPastingHandler(CommitmentsTextBox, ActTextBox_Pasting);
+
+        DataObject.AddPastingHandler(MeetingHourTextBox, TimeTextBox_Pasting);
+
+        DataObject.AddPastingHandler(MeetingMinuteTextBox,TimeTextBox_Pasting);
     }
 
     private bool TryGetMeetingDateTime(out DateTime dateTime)
@@ -35,14 +39,31 @@ public partial class ActFormView : UserControl
         dateTime = default;
 
         if (MeetingDatePicker.SelectedDate is not DateTime date)
-            return false;
+        { 
+            return false; 
+        }
 
-        if (!ValidationService.TryParseTime(MeetingTimeTextBox.Text, out TimeOnly time))
+        if (!int.TryParse(MeetingHourTextBox.Text, out int hour))
         {
             return false;
         }
 
-        dateTime = date.Date.Add(time.ToTimeSpan());
+        if (!int.TryParse(MeetingMinuteTextBox.Text, out int minute))
+        {
+            return false;
+        }
+
+        if (hour < 0 || hour > 23)
+        { 
+            return false; 
+        }
+
+        if (minute < 0 || minute > 59)
+        { 
+            return false; 
+        }
+
+        dateTime = date.Date.AddHours(hour).AddMinutes(minute);
 
         return true;
     }
@@ -211,6 +232,50 @@ public partial class ActFormView : UserControl
         }
     }
 
+    private void TimeTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        e.Handled = e.Text.Any(character => !char.IsDigit(character));
+    }
+
+    private static void TimeTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (!e.DataObject.GetDataPresent(DataFormats.Text))
+        {
+            e.CancelCommand();
+            return;
+        }
+
+        object data = e.DataObject.GetData(DataFormats.Text);
+
+        if (data is not string text || text.Length > 2 || !text.All(char.IsDigit))
+        {
+            e.CancelCommand();
+        }
+    }
+
+    private void MeetingHourTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (MeetingHourTextBox.Text.Length == 2)
+        {
+            MeetingMinuteTextBox.Focus();
+            MeetingMinuteTextBox.SelectAll();
+        }
+    }
+
+    private void TimeTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is not TextBox textBox)
+        { 
+            return;
+        }
+        if (!int.TryParse(textBox.Text, out int value))
+        {  
+            return;
+        }
+        textBox.Text = value.ToString("00");
+    }
+
+
 
     private bool ValidateForm()
     {
@@ -223,7 +288,7 @@ public partial class ActFormView : UserControl
 
         if (!TryGetMeetingDateTime(out _))
         {
-            ShowValidationError("Ingrese una hora válida en formato HH:mm.", MeetingTimeTextBox);
+            ShowValidationError("Ingrese una hora válida entre 00:00 y 23:59.", MeetingHourTextBox);
             return false;
         }
 
