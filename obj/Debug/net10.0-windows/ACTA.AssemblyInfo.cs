@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ACTA")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f817e018bc3aaf0a664038886fd24a1b6431812b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+685647aba395df31d6c0dae37714e8f6ef4894fc")]
 [assembly: System.Reflection.AssemblyProductAttribute("ACTA")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ACTA")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -11,6 +11,9 @@
     <Compile Update="Views\ActHistoryView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\HistoryWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\ParticipantFormWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

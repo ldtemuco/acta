@@ -242,4 +242,172 @@ public sealed class MeetingActRepository
 
         return participants;
     }
+
+    public async Task UpdateAsync(long id, MeetingAct meetingAct)
+    {
+        ArgumentNullException.ThrowIfNull(meetingAct);
+
+        await using SqliteConnection connection = _database.CreateConnection();
+
+        await connection.OpenAsync();
+
+        using SqliteTransaction transaction = connection.BeginTransaction();
+
+        try
+        {
+            int affectedRows = await UpdateMeetingActAsync(connection, transaction, id, meetingAct);
+
+            if (affectedRows == 0)
+            {
+                throw new KeyNotFoundException($"No existe un acta con ID {id}.");
+            }
+
+            await DeleteParticipantsAsync(connection, transaction, id);
+
+            await InsertParticipantsAsync(connection, transaction, id, meetingAct.Participants);
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+    }
+
+    private static async Task<int> UpdateMeetingActAsync(SqliteConnection connection, SqliteTransaction transaction, long id, MeetingAct meetingAct)
+    {
+        const string sql = """
+        UPDATE meeting_acts
+        SET
+            city = $city,
+            meeting_date = $meetingDate,
+            meeting_time = $meetingTime,
+            motives = $motives,
+            agreements = $agreements,
+            commitments = $commitments,
+            generator_version = $generatorVersion,
+            updated_at = strftime(
+                '%Y-%m-%dT%H:%M:%fZ',
+                'now'
+            )
+        WHERE id = $id;
+        """;
+
+        await using SqliteCommand command = connection.CreateCommand();
+
+        command.Transaction = transaction;
+        command.CommandText = sql;
+
+        command.Parameters.AddWithValue("$id", id);
+        command.Parameters.AddWithValue("$city", meetingAct.Header.City);
+        command.Parameters.AddWithValue("$meetingDate",meetingAct.Header.DateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+        command.Parameters.AddWithValue("$meetingTime",meetingAct.Header.DateTime.ToString("HH:mm", CultureInfo.InvariantCulture));
+        command.Parameters.AddWithValue("$motives", meetingAct.Motives);
+        command.Parameters.AddWithValue("$agreements", meetingAct.Agreements);
+        command.Parameters.AddWithValue("$commitments", meetingAct.Commitments);
+        command.Parameters.AddWithValue("$generatorVersion", meetingAct.GeneratorVersion);
+
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    private static async Task DeleteParticipantsAsync(SqliteConnection connection, SqliteTransaction transaction, long meetingActId)
+    {
+        const string sql = """
+        DELETE FROM act_participants
+        WHERE meeting_act_id = $meetingActId;
+        """;
+
+        await using SqliteCommand command = connection.CreateCommand();
+
+        command.Transaction = transaction;
+        command.CommandText = sql;
+
+        command.Parameters.AddWithValue("$meetingActId", meetingActId);
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<bool> DeleteAsync(long id)
+    {
+        await using SqliteConnection connection = _database.CreateConnection();
+
+        await connection.OpenAsync();
+
+        const string sql = """
+        DELETE FROM meeting_acts
+        WHERE id = $id;
+        """;
+
+        await using SqliteCommand command = connection.CreateCommand();
+
+        command.CommandText = sql;
+
+        command.Parameters.AddWithValue("$id", id);
+
+        int affectedRows = await command.ExecuteNonQueryAsync();
+
+        return affectedRows > 0;
+    }
+
+    public async Task<List<MeetingActSummary>> GetAllAsync()
+    {
+        await using SqliteConnection connection = _database.CreateConnection();
+
+        await connection.OpenAsync();
+
+        const string sql = """
+        SELECT
+            m.id,
+            m.meeting_date,
+            m.meeting_time,
+            m.motives,
+            COUNT(p.id) AS participant_count
+        FROM meeting_acts AS m
+        LEFT JOIN act_participants AS p
+            ON p.meeting_act_id = m.id
+        GROUP BY
+            m.id,
+            m.meeting_date,
+            m.meeting_time,
+            m.motives
+        ORDER BY
+            m.meeting_date DESC,
+            m.meeting_time DESC,
+            m.id DESC;
+        """;
+
+        await using SqliteCommand command = connection.CreateCommand();
+
+        command.CommandText = sql;
+
+        await using SqliteDataReader reader = await command.ExecuteReaderAsync();
+
+        List<MeetingActSummary> meetingActs = [];
+
+        while (await reader.ReadAsync())
+        {
+            string dateText = reader.GetString(reader.GetOrdinal("meeting_date"));
+
+            string timeText = reader.GetString(reader.GetOrdinal("meeting_time"));
+
+            DateTime dateTime = DateTime.ParseExact(
+                $"{dateText} {timeText}",
+                "yyyy-MM-dd HH:mm",
+                CultureInfo.InvariantCulture
+            );
+
+            meetingActs.Add(
+                new MeetingActSummary
+                {
+                    Id = reader.GetInt64(reader.GetOrdinal("id")),
+                    DateTime = dateTime,
+                    Motives = reader.GetString(reader.GetOrdinal("motives")),
+                    ParticipantCount = reader.GetInt32(reader.GetOrdinal("participant_count"))
+                }
+            );
+        }
+
+        return meetingActs;
+    }
 }
