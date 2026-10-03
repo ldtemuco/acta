@@ -82,6 +82,30 @@ public partial class ActFormView : UserControl
         AddParticipantButton.IsEnabled = count < MaxParticipants;
     }
 
+    private void EditParticipantButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button ||
+            button.DataContext is not Participant participant)
+        {
+            return;
+        }
+
+        ParticipantFormWindow dialog = new(participant)
+        {
+            Owner = Window.GetWindow(this)
+        };
+
+        if (dialog.ShowDialog() != true ||
+            dialog.Participant is null)
+        {
+            return;
+        }
+
+        int index = Participants.IndexOf(participant);
+
+        if (index >= 0)
+            Participants[index] = dialog.Participant;
+    }
 
     private static void ShowValidationError(string message, Control? control = null)
     {
@@ -111,6 +135,13 @@ public partial class ActFormView : UserControl
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning
             );
+
+            return false;
+        }
+
+        if (Participants.Count > MaxParticipants)
+        {
+            ShowValidationError( $"El acta no puede contener más de {MaxParticipants} participantes." );
 
             return false;
         }

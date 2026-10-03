@@ -35,6 +35,16 @@ public partial class ParticipantFormWindow : Window
         Loaded += (_, _) => NameTextBox.Focus();
     }
 
+    public ParticipantFormWindow(Participant participant) : this()
+    {
+        Title = "Editar participante";
+        AddButton.Content = "Guardar";
+        NameTextBox.Text = participant.Name;
+        RoleTextBox.Text = participant.Role;
+        RunTextBox.Text = participant.Run;
+        PhoneTextBox.Text = participant.Phone;
+    }
+
     //=================================================================================================================
     // VALIDACIÓN DE NOMBRE Y ROL
     //=================================================================================================================

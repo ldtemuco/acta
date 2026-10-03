@@ -95,21 +95,78 @@
                             Click="AddParticipantButton_Click"/>
                 </DockPanel>
 
-                <!-- Aquí irá el ItemsControl -->
+                <!-- ItemsControl -->
                 <Border Grid.Row="1"
-                        BorderBrush="#D0D0D0"
-                        BorderThickness="1"
-                        CornerRadius="4"
-                        MinHeight="90"
-                        Padding="12">
+                    BorderBrush="#D0D0D0"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    MinHeight="90"                      
+                    Padding="12">
 
-                    <TextBlock Text="Todavía no hay participantes."
-                               Foreground="#777777"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                    <Grid>
 
+                        <!-- Mensaje cuando la colección está vacía -->
+                        <TextBlock Text="Todavía no hay participantes."
+                            Foreground="#777777"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=ParticipantsItemsControl,Path=HasItems}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+
+                        </TextBlock>
+
+                        <!-- Participantes -->
+                        <ItemsControl x:Name="ParticipantsItemsControl" ItemsSource="{Binding Participants, RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="16"  >
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="32*"/>
+                                            <ColumnDefinition Width="50*"/>
+                                            <ColumnDefinition Width="13*"/>
+                                            <ColumnDefinition Width="14*"/>
+                                            <ColumnDefinition Width="170"/>
+                                        </Grid.ColumnDefinitions>
+                                        <!-- Nombre -->
+                                        <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="4,0,8,0"/>
+                                        <!-- Rol -->
+                                        <TextBlock Grid.Column="1" Text="{Binding Role}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="4,0,8,0"/>
+                                        <!-- RUN -->
+                                        <TextBlock Grid.Column="2" Text="{Binding Run}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="4,0,8,0"/>
+                                        <!-- Teléfono -->
+                                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="4">
+                                            <TextBlock Text="+56 9 "/>
+                                            <TextBlock Text="{Binding Phone}"/>
+                                        </StackPanel>
+                                        <!-- Acciones -->
+                                        <StackPanel Grid.Column="4" Orientation="Horizontal">
+                                            <Button Content="Editar"
+                                                Height="28"
+                                                Margin="4,0"
+                                                Padding="8,0"
+                                                Click="EditParticipantButton_Click"/>
+
+                                            <Button Content="Eliminar"
+                                                Height="28"
+                                                Margin="4,0"
+                                                Padding="8,0"
+                                                Click="RemoveParticipantButton_Click"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
                 </Border>
-
             </Grid>
 
             <!-- Motivos -->
