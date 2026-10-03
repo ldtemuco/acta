@@ -1,107 +1,38 @@
 ﻿using ACTA.Data;
-using ACTA.Data.Repositories;
-using ACTA.Models;
-using System.Configuration;
-using System.Data;
 using System.Windows;
 
-namespace ACTA
+namespace ACTA;
+
+public partial class App : Application
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+    protected override async void OnStartup(StartupEventArgs e)
     {
-        protected override async void OnStartup(StartupEventArgs e)
-        {
-            base.OnStartup(e);
+        base.OnStartup(e);
 
-            await TestDatabaseConnection();
-
-       
-        }
-
-        public async Task TestDatabaseConnection()
+        try
         {
             Database database = new();
 
-            MeetingActRepository repository = new(database);
+            DatabaseInitializer initializer = new(database);
 
-            MeetingAct original = new()
-            {
-                Header = new Header
-                {
-                    
-                    DateTime = new DateTime(
-                        2026,
-                        10,
-                        3,
-                        16,
-                        45,
-                        0
-                    )
-                },
+            await initializer.InitializeAsync();
 
-                Motives = "Reunión de prueba.",
-                Agreements = "Acuerdo de prueba.",
-                Commitments = "Compromiso de prueba.",
+            MainWindow mainWindow = new(database);
 
-                GeneratorVersion = 1,
+            MainWindow = mainWindow;
 
-                Participants =
-                [
-                    new Participant
-                    {
-                        Name = "Anacleto Murfacio Coronado Prudencio",
-                        Role = "Coordinadora de convivencia escolar.",
-                        Run = "18.456.789-K",
-                        Phone = "65465123"
-                    },
-
-                    new Participant
-                    {
-                        Name = "María Pérez",
-                        Role = "Apoderada",
-                        Run = "12.345.678-5",
-                        Phone = "87654321"
-                    }
-                ]
-            };
-
-            long id = await repository.InsertAsync(original);
-
-            MeetingAct? loaded = await repository.GetByIdAsync(id);
-
-            if (loaded is null)
-            {
-                MessageBox.Show("No fue posible recuperar el acta.");
-                return;
-            }
-
+            mainWindow.Show();
+        }
+        catch (Exception exception)
+        {
             MessageBox.Show(
-                $"""
-                ID: {id}
-
-                Ciudad: {loaded.Header.City}
-                Fecha: {loaded.Header.DateTime:dd/MM/yyyy}
-                Hora: {loaded.Header.DateTime:HH:mm}
-
-                Participantes: {loaded.Participants.Count}
-
-                Primero:
-                {loaded.Participants[0].Name}
-                {loaded.Participants[0].Run}
-
-                Segundo:
-                {loaded.Participants[1].Name}
-                {loaded.Participants[1].Run}
-                """
+                $"No fue posible iniciar ACTA.\n\n{exception.Message}",
+                "ACTA",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
             );
 
-
+            Shutdown(-1);
         }
     }
-
-   
-
 }

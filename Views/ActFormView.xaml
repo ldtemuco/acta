@@ -19,6 +19,7 @@
 
             <!-- Título -->
             <TextBlock Grid.Row="0"
+                       x:Name="FormTitleTextBlock"
                        Text="Nueva Acta"
                        FontSize="24"
                        FontWeight="SemiBold"
@@ -272,14 +273,16 @@
                             FontWeight="Bold"
                             Width="110"
                             Height="34"
-                            Margin="0,0,10,0"/>
+                            Margin="0,0,10,0"
+                            Click="PreviewButton_Click"/>
 
                     <Button x:Name="SaveButton"
                             FontSize="16"
                             FontWeight="Bold"
                             Content="Guardar acta"
                             Width="110"
-                            Height="34"/>
+                            Height="34"
+                            Click="SaveButton_Click"/>
 
                 </StackPanel>
             </StackPanel>

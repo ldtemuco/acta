@@ -1,6 +1,10 @@
-﻿using ACTA.Models;
+﻿using ACTA.Data;
+using ACTA.Data.Repositories;
+using ACTA.Models;
 using ACTA.Services;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,11 +16,15 @@ public partial class ActFormView : UserControl
 {
     private const int MaxParticipants = 10;
 
-    private static readonly Brush ActBackground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
-
     private static readonly Brush ValidBrush = new SolidColorBrush(Color.FromRgb(46, 125, 50));
 
     private static readonly Brush InvalidBrush = new SolidColorBrush(Color.FromRgb(198, 40, 40));
+
+    private MeetingActRepository? _repository;
+
+    private long? _currentMeetingActId;
+
+    private int _generatorVersion = 1;
 
     public ObservableCollection<Participant> Participants { get; } = [];
     public ActFormView()
@@ -34,6 +42,292 @@ public partial class ActFormView : UserControl
         DataObject.AddPastingHandler(MeetingHourTextBox, TimeTextBox_Pasting);
 
         DataObject.AddPastingHandler(MeetingMinuteTextBox,TimeTextBox_Pasting);
+    }
+
+    public void Configure(Database database)
+    {
+        _repository = new MeetingActRepository(database);
+    }
+
+    public void NewAct()
+    {
+        _currentMeetingActId = null;
+
+        _generatorVersion = 1;
+
+        FormTitleTextBlock.Text = "Nueva Acta";
+
+        SaveButton.Content = "Guardar acta";
+
+        MeetingDatePicker.SelectedDate =
+            DateTime.Today;
+
+        MeetingHourTextBox.Clear();
+
+        MeetingMinuteTextBox.Clear();
+
+        Participants.Clear();
+
+        MotivesTextBox.Clear();
+
+        AgreementsTextBox.Clear();
+
+        CommitmentsTextBox.Clear();
+
+        UpdateParticipantControls();
+    }
+
+    private MeetingAct CreateMeetingAct()
+    {
+        if (!TryGetMeetingDateTime(
+            out DateTime dateTime))
+        {
+            throw new InvalidOperationException(
+                "La fecha u hora del acta no es válida."
+            );
+        }
+
+        return new MeetingAct
+        {
+            Header = new Header
+            {
+                DateTime = dateTime
+            },
+
+            Participants =
+            [
+                .. Participants.Select(
+                participant =>
+                    new Participant
+                    {
+                        Name = participant.Name,
+                        Role = participant.Role,
+                        Run = participant.Run,
+                        Phone = participant.Phone
+                    }
+            )
+            ],
+
+            Motives =
+                MotivesTextBox.Text.Trim(),
+
+            Agreements =
+                AgreementsTextBox.Text.Trim(),
+
+            Commitments =
+                CommitmentsTextBox.Text.Trim(),
+
+            GeneratorVersion =
+                _generatorVersion
+        };
+    }
+
+    private async void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!ValidateForm())
+        {
+            return;
+        }
+
+        if (_repository is null)
+        {
+            MessageBox.Show(
+                "La base de datos no está disponible.",
+                "ACTA",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
+            );
+
+            return;
+        }
+
+        try
+        {
+            MeetingAct meetingAct =
+                CreateMeetingAct();
+
+            if (_currentMeetingActId is null)
+            {
+                long id =
+                    await _repository.InsertAsync(
+                        meetingAct
+                    );
+
+                _currentMeetingActId = id;
+
+                FormTitleTextBlock.Text =
+                    $"Editar acta #{id}";
+
+                SaveButton.Content =
+                    "Guardar cambios";
+
+                MessageBox.Show(
+                    $"Acta #{id} guardada correctamente.",
+                    "ACTA",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+            }
+            else
+            {
+                await _repository.UpdateAsync(
+                    _currentMeetingActId.Value,
+                    meetingAct
+                );
+
+                MessageBox.Show(
+                    $"Acta #{_currentMeetingActId.Value} actualizada correctamente.",
+                    "ACTA",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+            }
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(
+                $"No fue posible guardar el acta.\n\n{exception.Message}",
+                "ACTA",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
+            );
+        }
+    }
+
+    public async Task LoadAsync(long id)
+    {
+        if (_repository is null)
+        {
+            return;
+        }
+
+        try
+        {
+            MeetingAct? meetingAct =
+                await _repository.GetByIdAsync(id);
+
+            if (meetingAct is null)
+            {
+                MessageBox.Show(
+                    $"No se encontró el acta #{id}.",
+                    "ACTA",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+
+                return;
+            }
+
+            _currentMeetingActId = id;
+
+            _generatorVersion =
+                meetingAct.GeneratorVersion;
+
+            MeetingDatePicker.SelectedDate =
+                meetingAct.Header.DateTime.Date;
+
+            MeetingHourTextBox.Text =
+                meetingAct.Header.DateTime
+                    .ToString("HH");
+
+            MeetingMinuteTextBox.Text =
+                meetingAct.Header.DateTime
+                    .ToString("mm");
+
+            Participants.Clear();
+
+            foreach (Participant participant
+                     in meetingAct.Participants)
+            {
+                Participants.Add(participant);
+            }
+
+            MotivesTextBox.Text =
+                meetingAct.Motives;
+
+            AgreementsTextBox.Text =
+                meetingAct.Agreements;
+
+            CommitmentsTextBox.Text =
+                meetingAct.Commitments;
+
+            FormTitleTextBlock.Text =
+                $"Editar acta #{id}";
+
+            SaveButton.Content =
+                "Guardar cambios";
+
+            UpdateParticipantControls();
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(
+                $"No fue posible abrir el acta.\n\n{exception.Message}",
+                "ACTA",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
+            );
+        }
+    }
+
+    private void PreviewButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        if (!ValidateForm())
+        {
+            return;
+        }
+
+        try
+        {
+            MeetingAct meetingAct =
+                CreateMeetingAct();
+
+            string previewDirectory =
+                Path.Combine(
+                    Path.GetTempPath(),
+                    "ACTA",
+                    "Preview"
+                );
+
+            Directory.CreateDirectory(
+                previewDirectory
+            );
+
+            string filePath =
+                Path.Combine(
+                    previewDirectory,
+                    $"ACTA_{Guid.NewGuid():N}.docx"
+                );
+
+            IDocumentService documentService =
+                DocumentServiceResolver.Get(
+                    meetingAct.GeneratorVersion
+                );
+
+            documentService.Create(
+                filePath,
+                meetingAct
+            );
+
+            Process.Start(
+                new ProcessStartInfo
+                {
+                    FileName = filePath,
+                    UseShellExecute = true
+                }
+            );
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(
+                $"No fue posible generar la vista previa.\n\n{exception.Message}",
+                "ACTA",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
+            );
+        }
     }
 
     private bool TryGetMeetingDateTime(out DateTime dateTime)
