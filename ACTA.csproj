@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <ApplicationIcon>Resources\Icons\acta_icon.ico</ApplicationIcon>   
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -13,11 +13,7 @@
     <None Remove="Resources\Fonts\Roboto\Roboto-BoldItalic.ttf" />
     <None Remove="Resources\Fonts\Roboto\Roboto-Italic.ttf" />
     <None Remove="Resources\Fonts\Roboto\Roboto-Regular.ttf" />
-    <None Remove="Resources\Icons\arrows.svg" />
-    <None Remove="Resources\Icons\cursor.svg" />
-    <None Remove="Resources\Icons\hand.svg" />
-    <None Remove="Resources\Icons\zoom_in.svg" />
-    <None Remove="Resources\Icons\zoom_out.svg" />
+    <None Remove="Resources\Icons\Acta-Icon.ico" />
     <None Remove="Resources\Images\Logo.png" />
   </ItemGroup>
 
