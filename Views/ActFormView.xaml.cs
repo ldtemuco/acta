@@ -2,6 +2,7 @@
 using ACTA.Data.Repositories;
 using ACTA.Models;
 using ACTA.Services;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -280,9 +281,7 @@ public partial class ActFormView : UserControl
         }
     }
 
-    private void PreviewButton_Click(
-    object sender,
-    RoutedEventArgs e)
+    private void PreviewButton_Click(object sender, RoutedEventArgs e)
     {
         if (!ValidateForm())
         {
@@ -291,6 +290,9 @@ public partial class ActFormView : UserControl
 
         try
         {
+            Mouse.OverrideCursor =
+                Cursors.Wait;
+
             MeetingAct meetingAct =
                 CreateMeetingAct();
 
@@ -305,29 +307,26 @@ public partial class ActFormView : UserControl
                 previewDirectory
             );
 
-            string filePath =
+            string pdfPath =
                 Path.Combine(
                     previewDirectory,
-                    $"ACTA_{Guid.NewGuid():N}.docx"
+                    "preview.pdf"
                 );
 
-            IDocumentService documentService =
-                DocumentServiceResolver.Get(
+            IDocumentService pdfService =
+                PdfDocumentServiceResolver.Get(
                     meetingAct.GeneratorVersion
                 );
 
-            documentService.Create(
-                filePath,
+            pdfService.Create(
+                pdfPath,
                 meetingAct
             );
 
-            Process.Start(
-                new ProcessStartInfo
-                {
-                    FileName = filePath,
-                    UseShellExecute = true
-                }
-            );
+            MainWindow? mainWindow =
+                Window.GetWindow(this) as MainWindow;
+
+            mainWindow?.ShowPreview(pdfPath, meetingAct);
         }
         catch (Exception exception)
         {
@@ -337,6 +336,10 @@ public partial class ActFormView : UserControl
                 MessageBoxButton.OK,
                 MessageBoxImage.Error
             );
+        }
+        finally
+        {
+            Mouse.OverrideCursor = null;
         }
     }
 
@@ -445,6 +448,8 @@ public partial class ActFormView : UserControl
         if (index >= 0)
             Participants[index] = dialog.Participant;
     }
+     
+
 
     private static void ShowValidationError(string message, Control? control = null)
     {

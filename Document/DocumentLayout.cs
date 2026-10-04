@@ -8,6 +8,9 @@ public static class DocumentLayout
     private const double TwipsPerInch = 1440.0;
     private const double CentimetersPerInch = 2.54;
     private const long EmusPerInch = 914400;
+    public const double SectionContentHeightCm = 4.0;
+
+    public static readonly int SectionContentHeight = CmToTwips(SectionContentHeightCm);
 
     // Página Oficio Chile: 21,59 x 33,02 cm
     public static readonly int PageWidth = CmToTwips(21.59);

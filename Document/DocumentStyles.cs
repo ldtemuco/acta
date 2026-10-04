@@ -115,7 +115,7 @@ public static class DocumentStyles
 
         FontSize fontSize = new()
         {
-            Val = "22"
+            Val = "20"
         };
 
         RunProperties properties = new();
@@ -125,6 +125,24 @@ public static class DocumentStyles
 
         return properties;
     }
+
+    public static RunProperties SeparatorText()
+    {
+        RunFonts fonts = CreateFonts();
+
+        FontSize fontSize = new()
+        {
+            Val = "8" // 4 pt
+        };
+
+        RunProperties properties = new();
+
+        properties.Append(fonts);
+        properties.Append(fontSize);
+
+        return properties;
+    }
+
 
     public static ParagraphProperties LeftParagraph()
     {

@@ -1,5 +1,6 @@
 ﻿using ACTA.Data;
 using System.Windows;
+using QuestPDF.Infrastructure;
 
 namespace ACTA;
 
@@ -7,6 +8,7 @@ public partial class App : Application
 {
     protected override async void OnStartup(StartupEventArgs e)
     {
+        QuestPDF.Settings.License = LicenseType.Community;
         base.OnStartup(e);
 
         try

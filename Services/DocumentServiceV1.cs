@@ -96,21 +96,64 @@ public class DocumentServiceV1 : IDocumentService
 
     private static Paragraph CreateSeparatorParagraph()
     {
-        SpacingBetweenLines spacing = new()
-        {
-            Before = "0",
-            After = "0",
-            Line = "259",
-            LineRule = LineSpacingRuleValues.Auto
-        };
+        ParagraphMarkRunProperties paragraphMark =
+            new();
 
-        ParagraphProperties properties = new();
+        paragraphMark.Append(
+            new RunFonts
+            {
+                Ascii = DocumentFonts.FamilyName,
+                HighAnsi = DocumentFonts.FamilyName,
+                ComplexScript = DocumentFonts.FamilyName
+            }
+        );
 
+        paragraphMark.Append(
+            new FontSize
+            {
+                Val = "8" // 4 pt
+            }
+        );
+
+        SpacingBetweenLines spacing =
+            new()
+            {
+                Before = "0",
+                After = "0",
+
+                // 4 pt = 80 twentieths of a point
+                Line = "80",
+
+                LineRule =
+                    LineSpacingRuleValues.Exact
+            };
+
+        ParagraphProperties properties =
+            new();
+
+        properties.Append(paragraphMark);
         properties.Append(spacing);
 
-        Paragraph paragraph = new();
+        Run run =
+            new();
+
+        run.Append(
+            DocumentStyles.SeparatorText()
+        );
+
+        run.Append(
+            new Text(" ")
+            {
+                Space =
+                    SpaceProcessingModeValues.Preserve
+            }
+        );
+
+        Paragraph paragraph =
+            new();
 
         paragraph.Append(properties);
+        paragraph.Append(run);
 
         return paragraph;
     }

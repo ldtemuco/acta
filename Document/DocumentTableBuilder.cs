@@ -415,8 +415,9 @@ public static class DocumentTableBuilder
         Paragraph paragraph = DocumentHelpers.CreateParagraph(content, DocumentStyles.LeftParagraph(), DocumentStyles.BodyText());
 
         TableCell cell = DocumentHelpers.CreateCell(paragraph, DocumentLayout.ContentWidth, CellVerticalAlignment.Top);
+              
+        TableRow row = DocumentHelpers.CreateRow(DocumentLayout.SectionContentHeight,exactHeight: true);
 
-        TableRow row = new();
         row.Append(cell);
 
         return row;
