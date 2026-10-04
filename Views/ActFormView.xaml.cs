@@ -22,7 +22,9 @@ public partial class ActFormView : UserControl
 
     private MeetingActRepository? _repository;
 
-    private long? _currentMeetingActId;
+    // private long? _currentMeetingActId;
+
+    private long? _sourceMeetingActId;
 
     private int _generatorVersion = 1;
 
@@ -51,7 +53,7 @@ public partial class ActFormView : UserControl
 
     public void NewAct()
     {
-        _currentMeetingActId = null;
+        _sourceMeetingActId = null;
 
         _generatorVersion = 1;
 
@@ -59,8 +61,7 @@ public partial class ActFormView : UserControl
 
         SaveButton.Content = "Guardar acta";
 
-        MeetingDatePicker.SelectedDate =
-            DateTime.Today;
+        MeetingDatePicker.SelectedDate = DateTime.Today;
 
         MeetingHourTextBox.Clear();
 
@@ -122,7 +123,7 @@ public partial class ActFormView : UserControl
         };
     }
 
-    private async void SaveButton_Click(object sender, RoutedEventArgs e)
+    private async void GenerateButton_Click(object sender, RoutedEventArgs e)
     {
         if (!ValidateForm())
         {
@@ -146,47 +147,24 @@ public partial class ActFormView : UserControl
             MeetingAct meetingAct =
                 CreateMeetingAct();
 
-            if (_currentMeetingActId is null)
-            {
-                long id =
-                    await _repository.InsertAsync(
-                        meetingAct
-                    );
-
-                _currentMeetingActId = id;
-
-                FormTitleTextBlock.Text =
-                    $"Editar acta #{id}";
-
-                SaveButton.Content =
-                    "Guardar cambios";
-
-                MessageBox.Show(
-                    $"Acta #{id} guardada correctamente.",
-                    "ACTA",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
-            }
-            else
-            {
-                await _repository.UpdateAsync(
-                    _currentMeetingActId.Value,
+            long id =
+                await _repository.InsertAsync(
                     meetingAct
                 );
 
-                MessageBox.Show(
-                    $"Acta #{_currentMeetingActId.Value} actualizada correctamente.",
-                    "ACTA",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
-            }
+            MessageBox.Show(
+                $"Acta #{id} generada correctamente.",
+                "ACTA",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information
+            );
+
+            await LoadForReuseAsync(id);
         }
         catch (Exception exception)
         {
             MessageBox.Show(
-                $"No fue posible guardar el acta.\n\n{exception.Message}",
+                $"No fue posible generar el acta.\n\n{exception.Message}",
                 "ACTA",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error
@@ -194,7 +172,7 @@ public partial class ActFormView : UserControl
         }
     }
 
-    public async Task LoadAsync(long id)
+    public async Task LoadForReuseAsync(long id)
     {
         if (_repository is null)
         {
@@ -218,28 +196,37 @@ public partial class ActFormView : UserControl
                 return;
             }
 
-            _currentMeetingActId = id;
+            _sourceMeetingActId = id;
 
-            _generatorVersion =
-                meetingAct.GeneratorVersion;
+            /*
+             * Es una NUEVA acta.
+             * Por lo tanto utilizamos la versión actual
+             * del generador y no la versión histórica.
+             */
+            _generatorVersion = 1;
 
             MeetingDatePicker.SelectedDate =
                 meetingAct.Header.DateTime.Date;
 
             MeetingHourTextBox.Text =
-                meetingAct.Header.DateTime
-                    .ToString("HH");
+                meetingAct.Header.DateTime.ToString("HH");
 
             MeetingMinuteTextBox.Text =
-                meetingAct.Header.DateTime
-                    .ToString("mm");
+                meetingAct.Header.DateTime.ToString("mm");
 
             Participants.Clear();
 
-            foreach (Participant participant
-                     in meetingAct.Participants)
+            foreach (Participant participant in meetingAct.Participants)
             {
-                Participants.Add(participant);
+                Participants.Add(
+                    new Participant
+                    {
+                        Name = participant.Name,
+                        Role = participant.Role,
+                        Run = participant.Run,
+                        Phone = participant.Phone
+                    }
+                );
             }
 
             MotivesTextBox.Text =
@@ -252,17 +239,17 @@ public partial class ActFormView : UserControl
                 meetingAct.Commitments;
 
             FormTitleTextBlock.Text =
-                $"Editar acta #{id}";
+                $"Reutilizar acta #{id}";
 
             SaveButton.Content =
-                "Guardar cambios";
+                "Reutilizar acta";
 
             UpdateParticipantControls();
         }
         catch (Exception exception)
         {
             MessageBox.Show(
-                $"No fue posible abrir el acta.\n\n{exception.Message}",
+                $"No fue posible cargar el acta.\n\n{exception.Message}",
                 "ACTA",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error
@@ -571,6 +558,37 @@ public partial class ActFormView : UserControl
         textBox.Text = value.ToString("00");
     }
 
+
+    private void ReuseButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_sourceMeetingActId is not long sourceId)
+        {
+            return;
+        }
+
+        _generatorVersion = 1;
+
+        FormTitleTextBlock.Text =
+            $"Nueva acta basada en #{sourceId}";
+
+        /*
+         * Una nueva reunión debería comenzar
+         * con nueva fecha y hora.
+         */
+        MeetingDatePicker.SelectedDate =
+            DateTime.Today;
+
+        MeetingHourTextBox.Clear();
+        MeetingMinuteTextBox.Clear();
+
+        ReuseButton.Visibility =
+            Visibility.Collapsed;
+
+        GenerateButton.Visibility =
+            Visibility.Visible;
+
+        SetFormEnabled(true);
+    }
 
 
     private bool ValidateForm()

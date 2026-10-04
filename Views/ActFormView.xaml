@@ -267,22 +267,32 @@
                             HorizontalAlignment="Right"
                             Margin="0,20,0,0">
 
-                    <Button x:Name="PreviewButton"
-                            Content="Vista previa"
-                            FontSize="16"
-                            FontWeight="Bold"
-                            Width="110"
-                            Height="34"
-                            Margin="0,0,10,0"
-                            Click="PreviewButton_Click"/>
+                    <Button x:Name="ReuseButton"
+                        Content="Reutilizar acta"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Width="130"
+                        Height="34"
+                        Margin="0,0,10,0"
+                        Visibility="Collapsed"
+                        Click="ReuseButton_Click"/>
 
-                    <Button x:Name="SaveButton"
-                            FontSize="16"
-                            FontWeight="Bold"
-                            Content="Guardar acta"
-                            Width="110"
-                            Height="34"
-                            Click="SaveButton_Click"/>
+                    <Button x:Name="PreviewButton"
+                        Content="Vista previa"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Width="110"
+                        Height="34"
+                        Margin="0,0,10,0"
+                        Click="PreviewButton_Click"/>
+
+                    <Button x:Name="GenerateButton"
+                        Content="Generar acta"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Width="120"
+                        Height="34"
+                        Click="GenerateButton_Click"/>
 
                 </StackPanel>
             </StackPanel>

@@ -43,6 +43,6 @@ public partial class MainWindow : Window
             return;
         }
 
-        await ActForm.LoadAsync(id);
+        await ActForm.LoadForReuseAsync(id);
     }
 }
