@@ -59,20 +59,21 @@ public partial class ActFormView : UserControl
 
         FormTitleTextBlock.Text = "Nueva Acta";
 
-        SaveButton.Content = "Guardar acta";
+        ReuseButton.Visibility = Visibility.Collapsed;
+        PreviewButton.Visibility = Visibility.Visible;
+        GenerateButton.Visibility = Visibility.Visible;
+
+        SetFormEnabled(true);
 
         MeetingDatePicker.SelectedDate = DateTime.Today;
 
         MeetingHourTextBox.Clear();
-
         MeetingMinuteTextBox.Clear();
 
         Participants.Clear();
 
         MotivesTextBox.Clear();
-
         AgreementsTextBox.Clear();
-
         CommitmentsTextBox.Clear();
 
         UpdateParticipantControls();
@@ -144,8 +145,7 @@ public partial class ActFormView : UserControl
 
         try
         {
-            MeetingAct meetingAct =
-                CreateMeetingAct();
+            MeetingAct meetingAct = CreateMeetingAct();
 
             long id =
                 await _repository.InsertAsync(
@@ -170,6 +170,22 @@ public partial class ActFormView : UserControl
                 MessageBoxImage.Error
             );
         }
+    }
+
+    private void SetFormEnabled(bool enabled)
+    {
+        MeetingDatePicker.IsEnabled = enabled;
+
+        MeetingHourTextBox.IsEnabled = enabled;
+        MeetingMinuteTextBox.IsEnabled = enabled;
+
+        AddParticipantButton.IsEnabled = enabled && Participants.Count < MaxParticipants;
+
+        ParticipantsItemsControl.IsEnabled = enabled;
+
+        MotivesTextBox.IsReadOnly = !enabled;
+        AgreementsTextBox.IsReadOnly = !enabled;
+        CommitmentsTextBox.IsReadOnly = !enabled;
     }
 
     public async Task LoadForReuseAsync(long id)
@@ -198,12 +214,10 @@ public partial class ActFormView : UserControl
 
             _sourceMeetingActId = id;
 
-            /*
-             * Es una NUEVA acta.
-             * Por lo tanto utilizamos la versión actual
-             * del generador y no la versión histórica.
-             */
-            _generatorVersion = 1;
+            // Mientras visualizamos el acta histórica,
+            // conservamos su versión de generador.
+            _generatorVersion =
+                meetingAct.GeneratorVersion;
 
             MeetingDatePicker.SelectedDate =
                 meetingAct.Header.DateTime.Date;
@@ -216,7 +230,8 @@ public partial class ActFormView : UserControl
 
             Participants.Clear();
 
-            foreach (Participant participant in meetingAct.Participants)
+            foreach (Participant participant
+                     in meetingAct.Participants)
             {
                 Participants.Add(
                     new Participant
@@ -239,12 +254,20 @@ public partial class ActFormView : UserControl
                 meetingAct.Commitments;
 
             FormTitleTextBlock.Text =
-                $"Reutilizar acta #{id}";
-
-            SaveButton.Content =
-                "Reutilizar acta";
+                $"Acta #{id}";
 
             UpdateParticipantControls();
+
+            SetFormEnabled(false);
+
+            ReuseButton.Visibility =
+                Visibility.Visible;
+
+            PreviewButton.Visibility =
+                Visibility.Visible;
+
+            GenerateButton.Visibility =
+                Visibility.Collapsed;
         }
         catch (Exception exception)
         {
@@ -566,28 +589,33 @@ public partial class ActFormView : UserControl
             return;
         }
 
+        /*
+         * Ahora sí estamos creando una nueva acta.
+         * Utilizamos el generador actual.
+         */
         _generatorVersion = 1;
 
         FormTitleTextBlock.Text =
             $"Nueva acta basada en #{sourceId}";
 
-        /*
-         * Una nueva reunión debería comenzar
-         * con nueva fecha y hora.
-         */
         MeetingDatePicker.SelectedDate =
             DateTime.Today;
 
         MeetingHourTextBox.Clear();
         MeetingMinuteTextBox.Clear();
 
+        SetFormEnabled(true);
+
         ReuseButton.Visibility =
             Visibility.Collapsed;
+
+        PreviewButton.Visibility =
+            Visibility.Visible;
 
         GenerateButton.Visibility =
             Visibility.Visible;
 
-        SetFormEnabled(true);
+        MeetingHourTextBox.Focus();
     }
 
 
