@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <ApplicationIcon>Resources\Icons\acta_icon.ico</ApplicationIcon>   
+    
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+	<ApplicationIcon>Resources\Icons\Acta-Icon.ico</ApplicationIcon>  
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,24 +34,8 @@
     <Resource Include="Resources\Fonts\Roboto\Roboto-BoldItalic.ttf" />
     <Resource Include="Resources\Fonts\Roboto\Roboto-Italic.ttf" />
     <Resource Include="Resources\Fonts\Roboto\Roboto-Regular.ttf" />
-    <Resource Include="Resources\Icons\arrows.svg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Icons\cursor.svg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Icons\hand.svg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Icons\zoom_in.svg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Icons\zoom_out.svg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\Logo.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
+	<Resource Include="Resources\Icons\Acta-Icon.ico" />
+ 
   </ItemGroup>
 
   <ItemGroup>

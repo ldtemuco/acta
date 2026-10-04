@@ -1,6 +1,7 @@
 ﻿<Window x:Class="ACTA.Views.ParticipantFormWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="/Resources/Icons/Acta-Icon.ico"
         Title="Agregar participante"
         Width="420"
         Height="420"
