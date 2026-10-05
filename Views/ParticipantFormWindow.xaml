@@ -141,6 +141,9 @@
 
             <Button x:Name="CancelButton"
                     Content="Cancelar"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    BorderThickness="3"
                     Width="90"
                     Height="32"
                     Margin="0,0,10,0"
@@ -148,6 +151,9 @@
 
             <Button x:Name="AddButton"                
                     Content="Agregar"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    BorderThickness="3"
                     Width="90"
                     Height="32"
                     IsDefault="True"

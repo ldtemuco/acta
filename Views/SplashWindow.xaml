@@ -24,8 +24,7 @@
         <Grid>
 
             <!-- Imagen principal -->
-            <Image Source="/Assets/splash-acta.png"
-                   Stretch="UniformToFill"/>
+            <Image Source="/Resources/Images/SplashActa.png" Stretch="UniformToFill"/>
 
             <!-- Panel inferior para carga real -->
             <Border

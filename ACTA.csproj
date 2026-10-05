@@ -15,7 +15,8 @@
     <None Remove="Resources\Fonts\Roboto\Roboto-Italic.ttf" />
     <None Remove="Resources\Fonts\Roboto\Roboto-Regular.ttf" />
     <None Remove="Resources\Icons\Acta-Icon.ico" />
-    <None Remove="Resources\Images\Logo.png" />
+	<None Remove="Resources\Images\Logo.png" />
+	<None Remove="Resources\Images\SplashActa.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,7 +36,9 @@
     <Resource Include="Resources\Fonts\Roboto\Roboto-Italic.ttf" />
     <Resource Include="Resources\Fonts\Roboto\Roboto-Regular.ttf" />
 	<Resource Include="Resources\Icons\Acta-Icon.ico" />
- 
+	<Resource Include="Resources\Images\Logo.png" />
+	<Resource Include="Resources\Images\SplashActa.png" />
+
   </ItemGroup>
 
   <ItemGroup>
